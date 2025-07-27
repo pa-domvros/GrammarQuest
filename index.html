@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Grammar Quest</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
+            /* New vibrant gradient background for the whole app */
+            background: radial-gradient(circle, #ffeb3b, #ff9800, #e91e63);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            overflow: hidden; /* Hide scrollbars caused by confetti */
+        }
+        #game-container {
+            max-width: 800px;
+            margin: 20px auto;
+            border: 5px solid #00247d; /* Union Jack Blue */
+            border-radius: 15px;
+            background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            color: #333;
+            position: relative;
+            z-index: 10;
+        }
+        h1 {
+            color: #00247d; /* Union Jack Blue for contrast */
+        }
+        .credit-line {
+            font-size: 14px;
+            font-style: italic;
+            color: #555;
+        }
+        .step {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background-color: #fdf5e6;
+            border: 2px dashed #C8102E; /* Union Jack Red */
+            display: none; /* Hidden by default */
+        }
+        .step.active {
+            display: block; /* Show the active step */
+        }
+        input[type="text"], input[type="radio"] + label {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 80%;
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #C8102E; /* Union Jack Red */
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #a00c24; /* Darker Red */
+        }
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .correct {
+            color: #32cd32;
+        }
+        .incorrect {
+            color: #ff0000;
+        }
+        #end-message {
+            display: none;
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border: 5px solid #006400;
+            border-radius: 15px;
+            position: relative;
+            z-index: 10;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        footer {
+            margin-top: 30px;
+            padding: 15px;
+            color: #fff;
+            font-size: 12px;
+            position: relative;
+            z-index: 10;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Add shadow for readability */
+        }
+        footer a {
+            color: #fff;
+            text-decoration: underline;
+        }
+        
+        /* --- Info Dot and Pop-up CSS --- */
+        #info-dot {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            background-color: #00247d;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+        .popup {
+            display: none; 
+            position: fixed; 
+            z-index: 20; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.5); 
+        }
+        .popup-content {
+            background-color: #fefefe;
+            margin: 20% auto;
+            padding: 25px;
+            border: 1px solid #888;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            font-size: 18px;
+            position: relative;
+            color: #333; /* <-- THE FIX IS HERE */
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* --- Fireworks/Confetti CSS --- */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 1;
+            z-index: 1;
+            top: -20px;
+            animation: confetti-fall 4s ease-in forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(0) rotateZ(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotateZ(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            #game-container, #end-message {
+                padding: 10px;
+                margin: 10px auto;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .step {
+                padding: 15px;
+            }
+            input[type="text"] {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="info-dot">i</div>
+        <h1>English Grammar Quest</h1>
+        <p class="credit-line">Devised by Panagiotis Domvros, English and Drama Teacher.</p>
+        <p>Follow the path and complete the challenges to finish the quest! Please answer with full sentences, unless you are choosing from multiple options.</p>
+
+        <div id="step-1" class="step active">
+            <h2>Step 1: Correct the Mistake</h2>
+            <p><strong>Sentence:</strong> "He usually go to school by car"</p>
+            <input type="text" id="answer-1" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(1, 'he usually goes to school by car')">Submit</button>
+            <div id="feedback-1" class="feedback"></div>
+        </div>
+
+        <div id="step-2" class="step">
+            <h2>Step 2: Ask a Question</h2>
+            <p>Ask a question for this sentence: "I love reading."</p>
+            <input type="text" id="answer-2" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(2, 'do you love reading?')">Submit</button>
+            <div id="feedback-2" class="feedback"></div>
+        </div>
+
+        <div id="step-3" class="step">
+            <h2>Step 3: Negative Form</h2>
+            <p>Write the previous sentence in the negative form: "I love reading."</p>
+            <input type="text" id="answer-3" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(3, 'i dont love reading')">Submit</button>
+            <div id="feedback-3" class="feedback"></div>
+        </div>
+
+        <div id="step-4" class="step">
+            <h2>Step 4: Correct the Mistake</h2>
+            <p>Correct the mistake: "We plays chess twice a week"</p>
+            <input type="text" id="answer-4" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(4, 'we play chess twice a week')">Submit</button>
+            <div id="feedback-4" class="feedback"></div>
+        </div>
+        
+        <div id="step-5" class="step">
+            <h2>Step 5: Ask a Question</h2>
+            <p>Ask a question about the sentence: "We are going to the theatre tonight" (Where)</p>
+            <input type="text" id="answer-5" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(5, 'where are you going tonight?')">Submit</button>
+            <div id="feedback-5" class="feedback"></div>
+        </div>
+
+        <div id="step-6" class="step">
+            <h2>Step 6: Choose the Correct Option</h2>
+            <p>Complete the sentence: "They _______ a text now."</p>
+            <input type="radio" id="option6a" name="answer-6" value="are reading">
+            <label for="option6a">are reading</label>
+            <input type="radio" id="option6b" name="answer-6" value="read">
+            <label for="option6b">read</label><br>
+            <button onclick="checkRadioAnswer(6, 'are reading')">Submit</button>
+            <div id="feedback-6" class="feedback"></div>
+        </div>
+
+        <div id="step-7" class="step">
+            <h2>Step 7: Correct the Mistake</h2>
+            <p>What's wrong with this question? Correct it: "Does they have breakfast at home?"</p>
+            <input type="text" id="answer-7" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(7, 'do they have breakfast at home?')">Submit</button>
+            <div id="feedback-7" class="feedback"></div>
+        </div>
+
+        <div id="step-8" class="step">
+            <h2>Step 8: Complete the Sentence</h2>
+            <p>At the moment, he ______ home. (go)</p>
+            <input type="text" id="answer-8" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(8, 'at the moment he is going home')">Submit</button>
+            <div id="feedback-8" class="feedback"></div>
+        </div>
+        
+        <div id="step-9" class="step">
+            <h2>Step 9: Complete the Sentence</h2>
+            <p>She always _______ TV after dinner. (watch)</p>
+            <input type="text" id="answer-9" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(9, 'she always watches tv after dinner')">Submit</button>
+            <div id="feedback-9" class="feedback"></div>
+        </div>
+
+        <div id="step-10" class="step">
+            <h2>Step 10: Complete the Sentence</h2>
+            <p>She _______ at the school canteen. (not/eat/usually)</p>
+            <input type="text" id="answer-10" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(10, 'she does not usually eat at the school canteen')">Submit</button>
+            <div id="feedback-10" class="feedback"></div>
+        </div>
+
+        <div id="step-11" class="step">
+            <h2>Step 11: Write the Negative Form</h2>
+            <p>Write the negative form: "He goes to school by bus"</p>
+            <input type="text" id="answer-11" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(11, 'he doesnt go to school by bus')">Submit</button>
+            <div id="feedback-11" class="feedback"></div>
+        </div>
+        
+        <div id="step-12" class="step">
+            <h2>Step 12: Choose the Correct Option</h2>
+            <p>Complete the sentence: "My friend, Maria, ______ very tall."</p>
+            <input type="radio" id="option12a" name="answer-12" value="is">
+            <label for="option12a">is</label>
+            <input type="radio" id="option12b" name="answer-12" value="are">
+            <label for="option12b">are</label><br>
+            <button onclick="checkRadioAnswer(12, 'is')">Submit</button>
+            <div id="feedback-12" class="feedback"></div>
+        </div>
+
+        <div id="step-13" class="step">
+            <h2>Step 13: Ask a Question</h2>
+            <p>Ask a question for the answer: "I go to dance classes twice a week" (How often)</p>
+            <input type="text" id="answer-13" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(13, 'how often do you go to dance classes?')">Submit</button>
+            <div id="feedback-13" class="feedback"></div>
+        </div>
+
+        <div id="step-14" class="step">
+            <h2>Step 14: Write in the Negative</h2>
+            <p>Write the sentence in the negative: "I go to dance classes twice a week"</p>
+            <input type="text" id="answer-14" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(14, 'i dont go to dance classes twice a week')">Submit</button>
+            <div id="feedback-14" class="feedback"></div>
+        </div>
+
+        <div id="step-15" class="step">
+            <h2>Step 15: Build a Sentence</h2>
+            <p>Build a sentence with: HE / A / SHOWER / TAKE / BEFORE / BREAKFAST / HAVING</p>
+            <input type="text" id="answer-15" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(15, 'he takes a shower before having breakfast')">Submit</button>
+            <div id="feedback-15" class="feedback"></div>
+        </div>
+        
+        <div id="step-16" class="step">
+            <h2>Step 16: Choose the Correct Option</h2>
+            <p>Complete the sentence: "He _______ a book every week."</p>
+            <input type="radio" id="option16a" name="answer-16" value="reads">
+            <label for="option16a">READS</label>
+            <input type="radio" id="option16b" name="answer-16" value="is reading">
+            <label for="option16b">IS READING</label><br>
+            <button onclick="checkRadioAnswer(16, 'reads')">Submit</button>
+            <div id="feedback-16" class="feedback"></div>
+        </div>
+
+        <div id="step-17" class="step">
+            <h2>Step 17: Complete the Sentence</h2>
+            <p>Today they ________ on a project. (work)</p>
+            <input type="text" id="answer-17" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(17, 'today they are working on a project')">Submit</button>
+            <div id="feedback-17" class="feedback"></div>
+        </div>
+        
+        <div id="step-18" class="step">
+            <h2>Step 18: Rewrite in Plural</h2>
+            <p>Rewrite the sentence using the plural: "He gets up at seven."</p>
+            <input type="text" id="answer-18" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(18, 'they get up at seven')">Submit</button>
+            <div id="feedback-18" class="feedback"></div>
+        </div>
+        
+        <div id="step-19" class="step">
+            <h2>Step 19: Complete the Sentence</h2>
+            <p>My brother ________ fish. (not like)</p>
+            <input type="text" id="answer-19" placeholder="Your full sentence answer">
+            <button onclick="checkAnswer(19, 'my brother doesnt like fish')">Submit</button>
+            <div id="feedback-19" class="feedback"></div>
+        </div>
+
+        <div id="step-20" class="step">
+            <h2>Step 20: Choose the Correct Option</h2>
+            <p>Listen! The baby ________.</p>
+            <input type="radio" id="option20a" name="answer-20" value="is crying">
+            <label for="option20a">is crying</label>
+            <input type="radio" id="option20b" name="answer-20" value="cries">
+            <label for="option20b">cries</label><br>
+            <button onclick="checkRadioAnswer(20, 'is crying')">Submit</button>
+            <div id="feedback-20" class="feedback"></div>
+        </div>
+    </div>
+
+    <div id="end-message">
+        <h2>Congratulations!</h2>
+        <p>You have completed the English Grammar Quest!</p>
+        <p><strong>Ask your teacher for your prize!</strong></p>
+    </div>
+    
+    <div id="info-popup" class="popup">
+        <div class="popup-content">
+            <span class="close-button">&times;</span>
+            <p>Present Simple and Present Progressive, Levels A1 - A2</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>Devised by Panagiotis Domvros, English and Drama Teacher, All Rights Reserved</p>
+        <a href="mailto:pa.domvros@gmail.com">pa.domvros@gmail.com</a>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // --- Pop-up Logic ---
+            const infoPopup = document.getElementById('info-popup');
+            const infoDot = document.getElementById('info-dot');
+            const closeButton = document.querySelector('.popup-content .close-button');
+
+            infoDot.onclick = function() {
+                infoPopup.style.display = 'block';
+            }
+            closeButton.onclick = function() {
+                infoPopup.style.display = 'none';
+            }
+            window.onclick = function(event) {
+                if (event.target == infoPopup) {
+                    infoPopup.style.display = 'none';
+                }
+            }
+        });
+
+        // --- Game Logic ---
+        let currentStep = 1;
+
+        function triggerConfetti() {
+            const confettiCount = 150;
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800'];
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`; // Initial random rotation
+                document.body.appendChild(confetti);
+
+                setTimeout(() => {
+                    confetti.remove();
+                }, 4000); // Remove after animation
+            }
+        }
+
+        function moveToNextStep(step) {
+            document.getElementById(`step-${step}`).classList.remove('active');
+            const nextStep = step + 1;
+            if (document.getElementById(`step-${nextStep}`)) {
+                document.getElementById(`step-${nextStep}`).classList.add('active');
+                currentStep = nextStep;
+            } else {
+                // Hide the game container and show the end message
+                document.getElementById('game-container').style.display = 'none';
+                document.getElementById('end-message').style.display = 'block';
+                triggerConfetti();
+            }
+        }
+
+        function checkAnswer(step, correctAnswer) {
+            const userAnswer = document.getElementById(`answer-${step}`).value.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:'{}=\-_`~()]/g,"");
+            const feedback = document.getElementById(`feedback-${step}`);
+            if (userAnswer === correctAnswer) {
+                feedback.textContent = 'Correct! Well done!';
+                feedback.className = 'feedback correct';
+                setTimeout(() => moveToNextStep(step), 1000);
+            } else {
+                feedback.textContent = 'Not quite, try again!';
+                feedback.className = 'feedback incorrect';
+            }
+        }
+        
+        function checkRadioAnswer(step, correctAnswer) {
+            const userAnswer = document.querySelector(`input[name="answer-${step}"]:checked`);
+            const feedback = document.getElementById(`feedback-${step}`);
+            if (userAnswer && userAnswer.value === correctAnswer) {
+                feedback.textContent = 'Correct! Well done!';
+                feedback.className = 'feedback correct';
+                setTimeout(() => moveToNextStep(step), 1000);
+            } else {
+                feedback.textContent = 'Not quite, try again!';
+                feedback.className = 'feedback incorrect';
+            }
+        }
+    </script>
+
+</body>
+</html>
